@@ -21,7 +21,7 @@ export default class RedirectDataSource implements IRedirectRepository {
 
     public async FindAll(cursor?: string): Promise<Redirect[]> {
         const options: any = {
-            take: 50,
+            take: 10,
             orderBy: {
                 createdAt: 'desc'
             }

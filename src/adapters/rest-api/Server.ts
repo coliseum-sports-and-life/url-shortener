@@ -1,5 +1,7 @@
 import express, { Router, Request, Response } from "express"
 import helmet from "helmet"
+import cors from "cors"
+import path from "path"
 import StatusCode from "./StatusCode"
 import IRedirectService from "../../domain/services/interfaces/IRedirectService"
 import RedirectController from "./controllers/RedirectController"
@@ -43,25 +45,12 @@ export default class ApiServer {
     }
 
     private config(): void {
+        this.express.use(cors())
         this.express.use(express.json({ limit: "200mb" }))
         this.express.disable("x-powered-by")
         this.express.set("trust proxy", true)
-        
-        this.express.use(helmet.contentSecurityPolicy())
-        this.express.use(helmet.crossOriginEmbedderPolicy())
-        this.express.use(helmet.crossOriginOpenerPolicy())
-        this.express.use(helmet.crossOriginResourcePolicy())
-        this.express.use(helmet.dnsPrefetchControl())
-        this.express.use(helmet.expectCt())
-        this.express.use(helmet.frameguard())
-        this.express.use(helmet.hidePoweredBy())
-        this.express.use(helmet.hsts())
-        this.express.use(helmet.ieNoOpen())
-        this.express.use(helmet.noSniff())
-        this.express.use(helmet.originAgentCluster())
-        this.express.use(helmet.permittedCrossDomainPolicies())
-        this.express.use(helmet.referrerPolicy())
-        this.express.use(helmet.xssFilter())
+
+        //this.express.use(helmet())
     }
 
     private healthcheck(): void {
@@ -83,7 +72,7 @@ export default class ApiServer {
 
     private handlers(): void {
         // Custom 404 response
-        this.express.use((res: Response) => {
+        this.express.use((_req: Request, res: Response) => {
             return res.status(StatusCode.ClientErrorNotFound).send({ message: "Sorry can't find that!" })
         })
 
@@ -120,6 +109,9 @@ export default class ApiServer {
         const redirectController = new RedirectController(this.redirectService, Router())
 
         this.express.use("/api/v1/redirect", redirectController.router)
+        this.express.get('/ui', (req, res) => {
+            return res.sendFile(path.join(__dirname, '../../../../ui/index.html'))
+        })
     }
 
 }
