@@ -1,4 +1,4 @@
-# sample-api
+# Url Shortener
 Typescript sample hexagonal architecture
 
 Npm package install
